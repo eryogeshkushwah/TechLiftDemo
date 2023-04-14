@@ -3,13 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const isLogin = localStorage.getItem("login");
 
-  useEffect(() => {
-    if (!isLogin) {
-      navigate("/login");
-    }
-  });
 
   return (
     <>

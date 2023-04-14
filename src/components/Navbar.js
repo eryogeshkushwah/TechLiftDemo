@@ -1,14 +1,17 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { setLoginState, setSignUpState } from "./action";
 
 const Navbar = () => {
-  const location = useLocation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const loginData = useSelector((state) => state.Login);
 
-  const loginDetails = localStorage.getItem("login");
   const handleLogout = () => {
     localStorage.removeItem("login");
-    navigate("/login");
+    dispatch(setLoginState({}));
+    return navigate("/login");
   };
 
   return (
@@ -20,17 +23,21 @@ const Navbar = () => {
         <li>
           <Link to="/login">Login</Link>
         </li>
-        {!loginDetails ? (
-          <li>
-            <Link to="/register">Register</Link>
-          </li>
-        ) : null}
 
-        {loginDetails ? (
+        {Object.keys(loginData).length !== 0 ? (
           <li>
             <Link onClick={handleLogout}>Logout</Link>
           </li>
-        ) : null}
+        ) : (
+          <li>
+            <Link to="/register">Register</Link>
+          </li>
+        )}
+
+        <li>
+          {" "}
+          <Link to="/profile">Profile</Link>
+        </li>
       </ul>
     </nav>
   );

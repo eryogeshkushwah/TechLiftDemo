@@ -1,17 +1,29 @@
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect } from "react";
 import { YupLoginValidation } from "../validations/LoginValidation";
-import { redirect, useLocation, useNavigate } from "react-router-dom";
+import {
+  redirect,
+  useBeforeUnload,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { addLoginDetails, setLoginState, setSignUpState } from "./action";
 
 const Login = () => {
   const navigate = useNavigate();
-  const isLogin = localStorage.getItem("login");
+  const dispatch = useDispatch();
+  const loginData = useSelector((state) => state.Login);
+  const signUpData = useSelector((state) => state.SignUp);
+  console.log(loginData);
+  console.log(signUpData);
 
   useEffect(() => {
-    if (isLogin) {
+    if (Object.keys(loginData).length !== 0) {
       navigate("/");
     }
-  });
+  }, [loginData]);
+
   return (
     <Formik
       initialValues={{
@@ -20,8 +32,7 @@ const Login = () => {
       }}
       validationSchema={YupLoginValidation}
       onSubmit={(values) => {
-        const SignUpDetails = JSON.parse(localStorage.getItem("register"));
-        const isvalidEmail = SignUpDetails.find(
+        const isvalidEmail = signUpData.find(
           (data) => data.email === values.email
         );
         if (!isvalidEmail) {
@@ -30,8 +41,8 @@ const Login = () => {
         if (isvalidEmail.password !== values.password) {
           return alert("invalid username and Password");
         }
-        localStorage.setItem("login", JSON.stringify(values));
-        return navigate("/", { state: true });
+        dispatch(addLoginDetails(values));
+        navigate("/");
       }}
     >
       <Form>

@@ -1,10 +1,22 @@
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import React from "react";
+import React, { useCallback, useEffect } from "react";
 import { YupSignValidation } from "../validations/SingupValidation";
-import { useNavigate } from "react-router-dom";
-
+import { useBeforeUnload, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { addSignUpDetails, setSignUpState } from "./action";
 const Register = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const signUpdata = useSelector((state) => state.SignUp);
+  const loginData = useSelector((state) => state.Login);
+
+  console.log(loginData);
+  useEffect(() => {
+    if (Object.keys(loginData).length !== 0) {
+      navigate("/");
+    }
+  }, [loginData]);
+
   return (
     <div>
       <Formik
@@ -18,10 +30,16 @@ const Register = () => {
         }}
         validationSchema={YupSignValidation}
         onSubmit={(values) => {
-          let oldItems = JSON.parse(localStorage.getItem("register")) || [];
-          oldItems.push(values);
-          localStorage.setItem("register", JSON.stringify(oldItems));
-          return navigate("/login");
+          if (signUpdata.length !== 0) {
+            const AlreadyUser = signUpdata.find(
+              (user) => user.email === values.email
+            );
+            if (AlreadyUser) {
+              return alert("You are already Registered");
+            }
+          }
+          dispatch(addSignUpDetails(values));
+          navigate("/login");
         }}
       >
         <Form>
